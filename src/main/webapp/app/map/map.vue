@@ -76,4 +76,4 @@
   </div>
 </template>
 
-<script lang="ts" src="./home.component.ts"></script>
+<script lang="ts" src="./map.component.ts"></script>
