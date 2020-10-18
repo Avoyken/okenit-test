@@ -25,6 +25,11 @@ import '../content/scss/vendor.scss';
 import TranslationService from '@/locale/translation.service';
 import ConfigurationService from '@/admin/configuration/configuration.service';
 
+import Vuetify from 'vuetify';
+import 'vuetify/dist/vuetify.min.css';
+
+Vue.use(Vuetify);
+
 /* tslint:disable */
 
 // jhipster-needle-add-entity-service-to-main-import - JHipster will import entities services here
@@ -73,6 +78,7 @@ new Vue({
   components: { App },
   template: '<App/>',
   router,
+  vuetify: new Vuetify(),
   provide: {
     loginService: () => loginService,
     activateService: () => new ActivateService(),
