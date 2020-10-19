@@ -1,33 +1,85 @@
 <template>
-  <div class="text-xs-center">
-    <v-dialog v-model="dialog" width="500">
-      <template v-slot:activator="{ on }">
-        <v-btn color="red lighten-2" dark v-on="on"> Click Me </v-btn>
-      </template>
-
-      <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title> Privacy Policy </v-card-title>
-
-        <v-card-text>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-          enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt
-          in culpa qui officia deserunt mollit anim id est laborum.
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" flat @click="dialog = false"> I accept </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
+  <div @click="getCoordinatesOnClick" id="map"></div>
 </template>
 
 <script lang="ts" src="./map.component.ts"></script>
-
+<script>
+import 'ol/ol.css';
+// This is library of openlayer for handle map
+import Map from 'ol/Map';
+import View from 'ol/View';
+import { defaults as defaultControls, ScaleLine } from 'ol/control';
+import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
+import { OSM, Vector as VectorSource } from 'ol/source';
+export default {
+  async mounted() {
+    await this.initiateMap();
+  },
+  methods: {
+    initiateMap() {
+      // create vector layer
+      var source = new VectorSource();
+      var vector = new VectorLayer({
+        source: source,
+      });
+      // create title layer
+      var raster = new TileLayer({
+        source: new OSM(),
+      });
+      // create map with 2 layer
+      var map = new Map({
+        controls: defaultControls().extend([
+          new ScaleLine({
+            units: 'degrees',
+          }),
+        ]),
+        target: 'map',
+        layers: [raster, vector],
+        view: new View({
+          projection: 'EPSG:4326',
+          center: [0, 0],
+          zoom: 2,
+        }),
+      });
+    },
+    // localmap.on('singleclick', function (evt) {
+    //     console.log(evt.coordinate);
+    //
+    //     // convert coordinate to EPSG-4326
+    //     console.log(ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326'));
+    // });
+    // getCoordinatesOnClick() {
+    //     console.log(evt.coordinate);
+    //     // console.log(map.getEventCoordinate.)
+    // }
+  },
+};
+</script>
 <style>
+/*@import 'ol/ol.css';*/
 /*@import './vuetify/dist/vuetify.min.css';*/
+#map {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  height: 500px;
+  width: 99%;
+}
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+#nav {
+  padding: 30px;
+}
+#nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+#nav a.router-link-exact-active {
+  color: #42b983;
+}
 </style>
