@@ -14,8 +14,8 @@
         <v-list-item>
           <v-list-item-title>Delete</v-list-item-title>
         </v-list-item>
-        <v-list-item @click="onMenuStopHandler()">
-          <v-list-item-title>Stop</v-list-item-title>
+        <v-list-item>
+          <v-list-item-title>Edit</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -45,11 +45,6 @@ export default {
       showMenu: false,
       x: 0,
       y: 0,
-      // items: [
-      //     { title: 'Add' },
-      //     { title: 'Delete' },
-      //     { title: 'Stop' },
-      // ],
       coord: '',
     };
   },
@@ -79,25 +74,22 @@ export default {
           zoom: 2,
         }),
       });
-      map.on('contextmenu', evt => {
-        this.onContextHandler(evt);
-      });
-    },
-    onContextHandler: function (evt) {
-      evt.preventDefault();
-      console.log(evt.pixel);
-      console.log(evt.coordinate);
     },
     onMenuAddHandler: function () {
+      map.once('click', evt => {
+        // this.onContextHandler(evt);
+        console.log(evt.pixel);
+        console.log(evt.coordinate);
+      });
       draw = new Draw({
         source: source,
         type: 'Point',
       });
-      console.log('cleck');
       map.getInteractions().push(draw);
-    },
-    onMenuStopHandler: function () {
-      map.getInteractions().remove(draw);
+
+      map.once('click', evt => {
+        map.getInteractions().remove(draw);
+      });
     },
     show(e) {
       e.preventDefault();
