@@ -1,12 +1,11 @@
 <template>
   <div>
     <v-row class="flex" justify="center">
-      <v-card :ripple="false" class="portrait" @contextmenu="show">
-        <div id="map"></div>
+      <v-card :ripple="false" class="portrait" @contextmenu="showMenu($event)">
+        <div @click="showPopup($event)" id="map"></div>
       </v-card>
     </v-row>
-
-    <v-menu v-model="showMenu" :position-x="x" :position-y="y" absolute offset-y>
+    <v-menu v-model="showMenuModel" :position-x="x" :position-y="y" absolute offset-y>
       <v-list>
         <v-list-item @click="onMenuAddHandler()">
           <v-list-item-title>Add</v-list-item-title>
@@ -19,6 +18,12 @@
         </v-list-item>
       </v-list>
     </v-menu>
+
+    <v-list id="popup">
+      <v-list-item>
+        <v-list-item-title>Coord: {{ lonLat }}</v-list-item-title>
+      </v-list-item>
+    </v-list>
   </div>
 </template>
 
@@ -32,20 +37,24 @@ import { defaults as defaultControls, ScaleLine } from 'ol/control';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { OSM, Vector as VectorSource } from 'ol/source';
 import Draw from 'ol/interaction/Draw';
+import Point from 'ol';
 
 let map;
 let draw;
 let source;
+let feature;
 export default {
   async mounted() {
     await this.initiateMap();
   },
   data() {
     return {
-      showMenu: false,
+      showMenuModel: false,
       x: 0,
       y: 0,
-      coord: '',
+      xpop: 0,
+      ypop: 0,
+      lonLat: [0, 0],
     };
   },
   methods: {
@@ -74,10 +83,12 @@ export default {
           zoom: 2,
         }),
       });
+      map.on('click', function (event) {
+        feature = map.getFeaturesAtPixel(event.pixel)[0];
+      });
     },
     onMenuAddHandler: function () {
       map.once('click', evt => {
-        // this.onContextHandler(evt);
         console.log(evt.pixel);
         console.log(evt.coordinate);
       });
@@ -91,14 +102,27 @@ export default {
         map.getInteractions().remove(draw);
       });
     },
-    show(e) {
+    showMenu(e) {
       e.preventDefault();
-      this.showMenu = false;
+      this.showMenuModel = false;
       this.x = e.clientX;
       this.y = e.clientY;
       this.$nextTick(() => {
-        this.showMenu = true;
+        this.showMenuModel = true;
       });
+      this.showPopupModel = false;
+    },
+    showPopup: function (event) {
+      console.log('clicked map');
+      if (feature) {
+        this.showPopupModel = true;
+        this.lonLat = feature.getGeometry().getCoordinates();
+
+        this.xpop = map.getPixelFromCoordinate(this.lonLat)[0];
+        this.ypop = map.getPixelFromCoordinate(this.lonLat)[1];
+      } else {
+        console.log('clicked somewhere else');
+      }
     },
   },
 };
